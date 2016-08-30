@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<beans:beans xmlns="http://www.springframework.org/schema/security"  
+    xmlns:b="http://www.springframework.org/schema/beans"   
+    xmlns:beans="http://www.springframework.org/schema/beans"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+    xsi:schemaLocation="http://www.springframework.org/schema/beans   
+                        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd  
+                        http://www.springframework.org/schema/security   
+                        http://www.springframework.org/schema/security/spring-security-3.2.xsd">  
+      
+   	<!-- access-denied-page设置权限被拒绝后的跳转页面 -->
+    <http auto-config="true" access-denied-page="/intercept.do">
+    	<!-- 设置ANYONE权限拦截 -->
+    	<intercept-url pattern="/login.do*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+    	<intercept-url pattern="/loginFail.do*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+    	
+    	<!-- 设置只有ROLE_USER可以访问的拦截 -->
+    	<!-- *先后顺序很重要，必须admin拦截在前 -->
+        <intercept-url pattern="/admin*" access="ROLE_ADMIN"/>
+        <intercept-url pattern="/**" access="ROLE_USER"/>
+        
+        <!-- 设置登录页面，若未登录则自动跳转到该页面。登录成功后，则自动跳转到之前要访问的页面 -->
+        <!-- default-target-url设置登录后的目标页 -->
+        <form-login login-page="/login.do" authentication-failure-url="/loginFail.do" default-target-url="/loginSuccess.do"/>
+        
+        <!-- invalidate-session="true"表示开启session失效功能 -->
+        <logout invalidate-session="true" logout-success-url="/login.do" logout-url="/logout.do"/>
+    </http>
+    
+    <!-- 用自定义Service实现认证管理 -->
+    <beans:bean id="myUserDetailService" class="com.demo.security.myFilter.MyUserDetailService" />
+    <authentication-manager>
+        <authentication-provider user-service-ref="myUserDetailService" />
+    </authentication-manager>
+    
+</beans:beans>

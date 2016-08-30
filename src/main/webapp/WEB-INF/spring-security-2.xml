@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/security
+        http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+
+    <http auto-config="true">
+    	<!-- 设置ANYONE权限拦截 -->
+    	<intercept-url pattern="/login.do*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+    	<intercept-url pattern="/loginFail.do*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+    	<intercept-url pattern="/welcome.do*" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+    	
+    	<!-- 设置只有特定角色可以访问的拦截 -->
+        <intercept-url pattern="/**" access="ROLE_USER"/>
+        
+        <!-- 设置权限被拦截后的跳转页面 -->
+        <!-- 要访问的页面被拦截跳转后，若登录成功，则自动跳转到之前要访问的页面 -->
+        <form-login login-page="/welcome.do" authentication-failure-url="/loginFail.do"/>
+        
+        <!-- invalidate-session="true"表示开启session失效功能 -->
+        <logout invalidate-session="true" logout-success-url="/login.do" logout-url="/logout.do"/>
+    </http>
+    
+    <!-- 认证管理器。用户名密码都集成在配置文件中 --> 
+    <authentication-manager>
+        <authentication-provider>
+            <user-service>
+                <user name="user" password="user" authorities="ROLE_USER"/>
+            </user-service>
+        </authentication-provider>
+    </authentication-manager>
+    
+</beans:beans>
